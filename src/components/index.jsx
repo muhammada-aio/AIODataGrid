@@ -47,17 +47,20 @@ const DataGrid = ({ csv, headerMeta }) => {
     const toolbarOptions = ['Search'];
 
     const formatColumn = (props, dataType) => {
-        if(dataType === "DateTime") {
+        if (dataType === "Date" || dataType === "DateTime" ) {
             return moment.unix(props[props.column.field] / 1000).format("MM/DD/YYYY")
-        } 
+        }
+        else if (dataType === "Boolean") {
+            return !!props[props.column.field] ? "Yes" : "No";
+        }
         else if (dataType === "Integer") {
-            return Intl.NumberFormat('en-US', {maximumFractionDigits: 0}).format(props[props.column.field])
-        } else if(dataType === "Decimal") {
-            return Intl.NumberFormat('en-US', {maximumFractionDigits: 2}).format(props[props.column.field])
-        } else if(dataType === "Currency") {
-            return Intl.NumberFormat('en-US', {style: "currency", currency: 'USD', maximumFractionDigits: 2}).format(props[props.column.field])
-        } else if(dataType === "Percentage") {
-            return Intl.NumberFormat('en-US', {style: "percent", maximumFractionDigits: 2}).format(props[props.column.field])
+            return Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(props[props.column.field])
+        } else if (dataType === "Decimal") {
+            return Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(props[props.column.field])
+        } else if (dataType === "Currency") {
+            return Intl.NumberFormat('en-US', { style: "currency", currency: 'USD', maximumFractionDigits: 2 }).format(props[props.column.field])
+        } else if (dataType === "Percentage") {
+            return Intl.NumberFormat('en-US', { style: "percent", maximumFractionDigits: 2 }).format(props[props.column.field])
         }
         return props[props.column.field]
     }
