@@ -16,5 +16,13 @@
                 <attributeType name="String" />
             </attributeTypes>
         </property>
+        <property key="headerMeta" type="attribute">
+            <caption>Header Meta JSON</caption>
+            <category>Data</category>
+            <description></description>
+            <attributeTypes>
+                <attributeType name="String" />
+            </attributeTypes>
+        </property>
     </properties>
 </widget>

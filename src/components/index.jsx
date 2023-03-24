@@ -4,12 +4,12 @@ import moment from "moment";
 import { GridComponent, ColumnsDirective, ColumnDirective, Page, Toolbar, Inject, Resize } from '@syncfusion/ej2-react-grids';
 import "./Grid.css";
 
-const DataGrid = ({ csv }) => {
+const DataGrid = ({ csv, headerMeta }) => {
     const [data, setData] = useState([]);
     const [columns, setColumns] = useState([]);
 
     useEffect(() => {
-        if (csv.status === "available" && csv.value !== "") {
+        if (csv.status === "available" && csv.value !== "" && headerMeta.status === "available" && headerMeta.value !== "") {
             const parsedFile = PapaParse.parse(csv.value.trim(), {
                 delimiter: ',',
                 escapeChar: '\\',
@@ -20,19 +20,41 @@ const DataGrid = ({ csv }) => {
                     console.error("Error while parsing CSV:", err);
                 }
             })
-            setColumns(parsedFile.meta.fields)
-            setData(parsedFile.data)
+            let columnsMeta = []
+            try {
+                columnsMeta = JSON.parse(headerMeta.value).filter((el) => parsedFile.meta.fields.includes(el.attributeName));
+            } catch (error) {
+                columnsMeta = parsedFile.meta.fields.map(field => ({
+                    "attributeName": field,
+                    "displayName": field.replace(/([A-Z][a-z])/g, ' $1').replace(/(\d)/g, ' $1'),
+                    "dataType": "String",
+                    "order": 0
+                }))
+                console.error(error)
+            }
+
+            setData([]);
+            setColumns([])
+            setTimeout(() => {
+                setColumns(columnsMeta)
+                setData(parsedFile.data)
+            }, 10)
         }
-    }, [csv])
+    }, [csv, headerMeta])
 
 
     const toolbarOptions = ['Search'];
 
-    const formatColumn = (props) => {
-        if (props.column.field.toLowerCase().includes("date")) {
+    const formatColumn = (props, dataType) => {
+        if(dataType === "DateTime") {
             return moment.unix(props[props.column.field] / 1000).format("MM/DD/YYYY")
-        } else if (!isNaN(props[props.column.field])) {
-            return Intl.NumberFormat('en-US').format(props[props.column.field])
+        } 
+        else if (dataType === "Integer") {
+            return Intl.NumberFormat('en-US', {maximumFractionDigits: 0}).format(props[props.column.field])
+        } else if(dataType === "Decimal") {
+            return Intl.NumberFormat('en-US', {maximumFractionDigits: 2}).format(props[props.column.field])
+        } else if(dataType === "Currency") {
+            return Intl.NumberFormat('en-US', {style: "currency", maximumFractionDigits: 2}).format(props[props.column.field])
         }
         return props[props.column.field]
     }
@@ -50,16 +72,12 @@ const DataGrid = ({ csv }) => {
                 >
                     <ColumnsDirective>
                         {columns.map((column) => {
-                            const headerText = column
-                                .replace(/([A-Z][a-z])/g, ' $1')
-                                .replace(/(\d)/g, ' $1');
-
                             return (
                                 <ColumnDirective
-                                    field={column}
-                                    headerText={headerText}
-                                    width={headerText.length * 10}
-                                    template={formatColumn}
+                                    field={column.attributeName}
+                                    headerText={column.displayName}
+                                    width={column.displayName.length * 10}
+                                    template={(props) => formatColumn(props, column.dataType)}
                                 ></ColumnDirective>
                             );
                         })}
