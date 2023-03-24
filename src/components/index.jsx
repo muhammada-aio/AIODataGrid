@@ -1,5 +1,6 @@
 import { createElement, useState, useEffect } from "react";
 import * as PapaParse from "papaparse";
+import _ from "lodash";
 import moment from "moment";
 import { GridComponent, ColumnsDirective, ColumnDirective, Page, Toolbar, Inject, Resize } from '@syncfusion/ej2-react-grids';
 import "./Grid.css";
@@ -54,7 +55,9 @@ const DataGrid = ({ csv, headerMeta }) => {
         } else if(dataType === "Decimal") {
             return Intl.NumberFormat('en-US', {maximumFractionDigits: 2}).format(props[props.column.field])
         } else if(dataType === "Currency") {
-            return Intl.NumberFormat('en-US', {style: "currency", maximumFractionDigits: 2}).format(props[props.column.field])
+            return Intl.NumberFormat('en-US', {style: "currency", currency: 'USD', maximumFractionDigits: 2}).format(props[props.column.field])
+        } else if(dataType === "Percentage") {
+            return Intl.NumberFormat('en-US', {style: "percent", maximumFractionDigits: 2}).format(props[props.column.field])
         }
         return props[props.column.field]
     }
@@ -71,7 +74,7 @@ const DataGrid = ({ csv, headerMeta }) => {
                     pageSettings={{ pageCount: Math.ceil(data.length / 10) }}
                 >
                     <ColumnsDirective>
-                        {columns.map((column) => {
+                        {_.orderBy(columns, "order").map((column) => {
                             return (
                                 <ColumnDirective
                                     field={column.attributeName}

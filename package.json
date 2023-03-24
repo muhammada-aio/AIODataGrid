@@ -42,6 +42,7 @@
   "dependencies": {
     "@syncfusion/ej2-react-grids": "^20.4.54",
     "classnames": "^2.2.6",
+    "lodash": "^4.17.21",
     "mendix": "^9.23.621",
     "moment": "^2.29.4",
     "papaparse": "^5.4.0"
