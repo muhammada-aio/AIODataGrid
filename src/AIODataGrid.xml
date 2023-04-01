@@ -24,5 +24,10 @@
                 <attributeType name="String" />
             </attributeTypes>
         </property>
+        <property key="downloadReport" type="action">
+            <caption>Download Report Action</caption>
+            <category>Data</category>
+            <description></description>
+        </property>
     </properties>
 </widget>

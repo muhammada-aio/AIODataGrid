@@ -5,7 +5,7 @@ import moment from "moment";
 import { GridComponent, ColumnsDirective, ColumnDirective, Page, Toolbar, Inject, Resize } from '@syncfusion/ej2-react-grids';
 import "./Grid.css";
 
-const DataGrid = ({ csv, headerMeta }) => {
+const DataGrid = ({ csv, headerMeta, downloadReport }) => {
     const [data, setData] = useState([]);
     const [columns, setColumns] = useState([]);
 
@@ -44,10 +44,10 @@ const DataGrid = ({ csv, headerMeta }) => {
     }, [csv, headerMeta])
 
 
-    const toolbarOptions = ['Search'];
+    const toolbarOptions = [{ text: 'Search', align: 'Right' }, { text: 'Download', align: 'Left', id: "download" }];
 
     const formatColumn = (props, dataType) => {
-        if (dataType === "Date" || dataType === "DateTime" ) {
+        if (dataType === "Date" || dataType === "DateTime") {
             return moment.unix(props[props.column.field] / 1000).format("MM/DD/YYYY")
         }
         else if (dataType === "Boolean") {
@@ -65,6 +65,14 @@ const DataGrid = ({ csv, headerMeta }) => {
         return props[props.column.field]
     }
 
+    const clickHandler = (args) => {
+        if (args.item.id === 'download') {
+            if(downloadReport.canExecute) {
+                downloadReport.execute()
+            }
+        }
+    };
+
     return <div className='control-pane'>
         <div className='control-section row'>
             {data.length > 0 && (
@@ -73,6 +81,7 @@ const DataGrid = ({ csv, headerMeta }) => {
                     dataSource={data}
                     allowPaging={true}
                     toolbar={toolbarOptions}
+                    toolbarClick={clickHandler}
                     allowResizing={true}
                     pageSettings={{ pageCount: Math.ceil(data.length / 10) }}
                 >
