@@ -1,13 +1,16 @@
-import { createElement, useState, useEffect } from "react";
+import { createElement, useState, useEffect, useRef } from "react";
 import * as PapaParse from "papaparse";
 import _ from "lodash";
+import { CSVLink } from 'react-csv'
 import moment from "moment";
 import { GridComponent, ColumnsDirective, ColumnDirective, Page, Toolbar, Inject, Resize } from '@syncfusion/ej2-react-grids';
 import "./Grid.css";
 
-const DataGrid = ({ csv, headerMeta, downloadReport }) => {
+const DataGrid = ({ csv, headerMeta, reportId }) => {
     const [data, setData] = useState([]);
     const [columns, setColumns] = useState([]);
+    const [formattedCSVData, setFormattedCSVData] = useState("");
+    const csvLink = useRef();
 
     useEffect(() => {
         if (csv.status === "available" && csv.value !== "" && headerMeta.status === "available" && headerMeta.value !== "") {
@@ -44,7 +47,7 @@ const DataGrid = ({ csv, headerMeta, downloadReport }) => {
     }, [csv, headerMeta])
 
 
-    const toolbarOptions = [{ text: 'Search', align: 'Right' }, { text: 'Download', align: 'Left', id: "download" }];
+    const toolbarOptions = [{ text: 'Search', align: 'Right' }, { text: 'Download', align: 'Left', id: "download", prefixIcon: 'e-download', }];
 
     const formatColumn = (props, dataType) => {
         if (dataType === "Date" || dataType === "DateTime") {
@@ -67,9 +70,19 @@ const DataGrid = ({ csv, headerMeta, downloadReport }) => {
 
     const clickHandler = (args) => {
         if (args.item.id === 'download') {
-            if(downloadReport.canExecute) {
-                downloadReport.execute()
-            }
+            const formatted = data.map(x => {
+                const keys = Object.keys(x);
+                let newObject = {};
+                keys.forEach(y => {
+                  newObject[y.replace(/([A-Z][a-z])/g, ' $1').replace(/(\d)/g, ' $1').trim()] = x[y]
+                });
+                return newObject;
+              })
+            const csvFileContent = PapaParse.unparse(formatted);
+            setFormattedCSVData(csvFileContent);
+            setTimeout(() => {
+                csvLink.current.link.click()
+            }, 300)
         }
     };
 
@@ -83,7 +96,8 @@ const DataGrid = ({ csv, headerMeta, downloadReport }) => {
                     toolbar={toolbarOptions}
                     toolbarClick={clickHandler}
                     allowResizing={true}
-                    pageSettings={{ pageCount: Math.ceil(data.length / 10) }}
+                    locale='en-US' 
+                    pageSettings={{ pageCount: Math.ceil(data.length / 10), pageSizes: true  }}
                 >
                     <ColumnsDirective>
                         {_.orderBy(columns, "order").map((column) => {
@@ -101,6 +115,13 @@ const DataGrid = ({ csv, headerMeta, downloadReport }) => {
                 </GridComponent>
             )}
         </div>
+        <CSVLink
+         data={formattedCSVData}
+         filename={`Export${reportId.value}.csv`}
+         className='hidden'
+         ref={csvLink}
+         target='_blank'
+      />
     </div>;
 }
 

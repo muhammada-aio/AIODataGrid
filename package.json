@@ -10,7 +10,7 @@
   },
   "license": "Apache-2.0",
   "config": {
-    "projectPath": "Y:\\AIOPivotTable",
+    "projectPath": "Y:\\AIO Axis-AIOAxis-Analytics-41323",
     "mendixHost": "http://localhost:8080",
     "developmentPort": 3000
   },
@@ -45,6 +45,7 @@
     "lodash": "^4.17.21",
     "mendix": "^9.23.621",
     "moment": "^2.29.4",
-    "papaparse": "^5.4.0"
+    "papaparse": "^5.4.0",
+    "react-csv": "^2.2.2"
   }
 }
